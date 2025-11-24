@@ -15,7 +15,7 @@ mod objec;
 mod geometry;
 use geometry::*;
 
-use crate::objec::{Cube, Objects};
+use crate::objec::{Cube, Plane, Objects, Triangle, Pyramid, Sphere};
 
 
 const WIDTH: u32 = 640;
@@ -45,11 +45,17 @@ fn main() {
     let p1 = Point3D::new(-0.7, -0.7, 2.0);
     let p2 = Point3D::new(0.7, 0.7, 4.0);
 
-    let p3 = Point3D::new(0.7, 0.7, 8.0);
+    let p3 = Point3D::new(0.0, 0.0, 4.0);
     let p4 = Point3D::new(3.7, 3.7, 4.0);
+
+    let p5 = Point3D::new(0.7, 0.7, 5.0);
+    let p6 = Point3D::new(3.7, 3.7, 4.0);
     let mut scene: Vec<Objects> = vec![
-        Objects::Cube(Cube {e1:p1, e2:p2, angle_x:start_angle_x, angle_y:start_angle_y}),
-        Objects::Cube(Cube {e1:p3, e2:p4, angle_x:start_angle_x, angle_y:start_angle_y})
+        //Objects::Cube(Cube {e1:p1, e2:p2, angle_x:start_angle_x, angle_y:start_angle_y}),
+        //Objects::Triangle(Triangle {e1:p3, e2:p4, e3:p5, angle_x:start_angle_x, angle_y:start_angle_y}),
+        //Objects::Plane(Plane { e1:p5, e2:p6, angle_x:start_angle_x, angle_y:start_angle_y } ),
+        //Objects::Pyramid(Pyramid { e1:p1, e2:p2, e3:p3, angle_x:start_angle_x, angle_y:start_angle_y } ),
+        Objects::Sphere(Sphere { center: p3, radius: p1, angle_x: start_angle_x, angle_y: start_angle_y} ),
     ];
 
 
@@ -88,10 +94,13 @@ fn main() {
                             winit::event::VirtualKeyCode::Down => scene[obj_num].rotate(0.0, 0.04),
                             winit::event::VirtualKeyCode::Numpad0 => obj_num = 0,
                             winit::event::VirtualKeyCode::Numpad1 => obj_num = 1,
-                            winit::event::VirtualKeyCode::W => scene[obj_num].move_trans(0.0, -0.01),
-                            winit::event::VirtualKeyCode::S => scene[obj_num].move_trans(0.0, 0.01),
-                            winit::event::VirtualKeyCode::A => scene[obj_num].move_trans(-0.01, 0.0),
-                            winit::event::VirtualKeyCode::D => scene[obj_num].move_trans(0.01, 0.0),
+                            winit::event::VirtualKeyCode::Numpad2 => obj_num = 2,
+                            winit::event::VirtualKeyCode::W => scene[obj_num].move_trans(0.0, -0.01, 0.0),
+                            winit::event::VirtualKeyCode::S => scene[obj_num].move_trans(0.0, 0.01, 0.0),
+                            winit::event::VirtualKeyCode::A => scene[obj_num].move_trans(-0.01, 0.0, 0.0),
+                            winit::event::VirtualKeyCode::D => scene[obj_num].move_trans(0.01, 0.0, 0.0),
+                            winit::event::VirtualKeyCode::Q => scene[obj_num].move_trans(0.0, 0.0, -0.01),
+                            winit::event::VirtualKeyCode::E => scene[obj_num].move_trans(0.0, 0.0, 0.01),
                             _ => {}
                         }
                     }
@@ -127,8 +136,20 @@ fn render_scene(scene: &Vec<Objects>, light_dir: Point3D, framebuffer: &mut [u8]
 
     for object in scene{
         match object{
-            Objects::Cube(cube_obj) => {
-                objec::draw(cube_obj.clone(), light_dir, framebuffer, zbuffer);
+            Objects::Cube(obj) => {
+                objec::draw_cube(obj.clone(), light_dir, framebuffer, zbuffer);
+            }
+            Objects::Plane(obj) => {
+                objec::draw_plane(obj.clone(), light_dir, framebuffer, zbuffer);
+            }
+            Objects::Triangle(obj) => {
+                objec::draw_triangle(obj.clone(), light_dir, framebuffer, zbuffer);
+            }
+            Objects::Pyramid(obj) => {
+                objec::draw_pyramid(obj.clone(), light_dir, framebuffer, zbuffer);
+            }
+            Objects::Sphere(obj) => {
+                objec::draw_sphere(obj.clone(), light_dir, framebuffer, zbuffer);
             }
         }
     }
