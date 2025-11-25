@@ -1,4 +1,4 @@
-
+use std::ops::Mul;
 
 #[derive(Clone,Copy,Debug)]
 pub struct Point{
@@ -17,6 +17,18 @@ pub struct Point3D {
 impl Point3D{
     pub fn new(x: f32, y: f32, z: f32) -> Self {
         Self {x, y, z}
+    }
+}
+
+impl Mul<f32> for Point3D {
+    type Output = Point3D;
+
+    fn mul(self, rhs: f32) -> Point3D {
+        Point3D {
+            x: self.x * rhs,
+            y: self.y * rhs,
+            z: self.z * rhs,
+        }
     }
 }
 

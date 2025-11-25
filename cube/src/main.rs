@@ -39,24 +39,12 @@ fn main() {
     let mut light_dir = Point3D::new(-(0 as f64) as f32, (0 as f64) as f32, z_move);
     let mut obj_num: usize = 0;
 
-    let start_angle_x = -0.6f32;
-    let start_angle_y = 0.4f32;
 
     let p1 = Point3D::new(-0.7, -0.7, 2.0);
     let p2 = Point3D::new(0.7, 0.7, 4.0);
-
     let p3 = Point3D::new(0.0, 0.0, 4.0);
-    let p4 = Point3D::new(3.7, 3.7, 4.0);
 
-    let p5 = Point3D::new(0.7, 0.7, 5.0);
-    let p6 = Point3D::new(3.7, 3.7, 4.0);
-    let mut scene: Vec<Objects> = vec![
-        //Objects::Cube(Cube {e1:p1, e2:p2, angle_x:start_angle_x, angle_y:start_angle_y}),
-        //Objects::Triangle(Triangle {e1:p3, e2:p4, e3:p5, angle_x:start_angle_x, angle_y:start_angle_y}),
-        //Objects::Plane(Plane { e1:p5, e2:p6, angle_x:start_angle_x, angle_y:start_angle_y } ),
-        //Objects::Pyramid(Pyramid { e1:p1, e2:p2, e3:p3, angle_x:start_angle_x, angle_y:start_angle_y } ),
-        Objects::Sphere(Sphere { center: p3, radius: p1, angle_x: start_angle_x, angle_y: start_angle_y} ),
-    ];
+    let mut scene: Vec<Objects> = vec![];
 
 
     event_loop.run(move |event, _, control_flow| {
@@ -88,19 +76,33 @@ fn main() {
                 if let Some(keycode) = input.virtual_keycode {
                     if input.state == ElementState::Pressed {
                         match keycode {
-                            winit::event::VirtualKeyCode::Left => scene[obj_num].rotate(-0.04, 0.0),
-                            winit::event::VirtualKeyCode::Right => scene[obj_num].rotate(0.04, 0.0),
-                            winit::event::VirtualKeyCode::Up => scene[obj_num].rotate(0.0, -0.04),
-                            winit::event::VirtualKeyCode::Down => scene[obj_num].rotate(0.0, 0.04),
+                            winit::event::VirtualKeyCode::Up => scene[obj_num].rotate(-0.04, 0.0),
+                            winit::event::VirtualKeyCode::Down => scene[obj_num].rotate(0.04, 0.0),
+                            winit::event::VirtualKeyCode::Left => scene[obj_num].rotate(0.0, -0.04),
+                            winit::event::VirtualKeyCode::Right => scene[obj_num].rotate(0.0, 0.04),
                             winit::event::VirtualKeyCode::Numpad0 => obj_num = 0,
                             winit::event::VirtualKeyCode::Numpad1 => obj_num = 1,
                             winit::event::VirtualKeyCode::Numpad2 => obj_num = 2,
+                            winit::event::VirtualKeyCode::Numpad3 => obj_num = 3,
+                            winit::event::VirtualKeyCode::Numpad4 => obj_num = 4,
+                            winit::event::VirtualKeyCode::Numpad5 => obj_num = 5,
+                            winit::event::VirtualKeyCode::Numpad6 => obj_num = 6,
+                            winit::event::VirtualKeyCode::Numpad7 => obj_num = 7,
+                            winit::event::VirtualKeyCode::Numpad8 => obj_num = 8,
+                            winit::event::VirtualKeyCode::Numpad9 => obj_num = 9,
                             winit::event::VirtualKeyCode::W => scene[obj_num].move_trans(0.0, -0.01, 0.0),
                             winit::event::VirtualKeyCode::S => scene[obj_num].move_trans(0.0, 0.01, 0.0),
                             winit::event::VirtualKeyCode::A => scene[obj_num].move_trans(-0.01, 0.0, 0.0),
                             winit::event::VirtualKeyCode::D => scene[obj_num].move_trans(0.01, 0.0, 0.0),
                             winit::event::VirtualKeyCode::Q => scene[obj_num].move_trans(0.0, 0.0, -0.01),
                             winit::event::VirtualKeyCode::E => scene[obj_num].move_trans(0.0, 0.0, 0.01),
+                            winit::event::VirtualKeyCode::C => { scene.push(Objects::Cube(Cube::new(p1, p2)));},
+                            winit::event::VirtualKeyCode::P => { scene.push(Objects::Plane(Plane::new(p1, p2)));},
+                            winit::event::VirtualKeyCode::T => { scene.push(Objects::Triangle(Triangle::new(p1, p2, p3)));},
+                            winit::event::VirtualKeyCode::Y => { scene.push(Objects::Pyramid(Pyramid::new(p1, p2, p3)));},
+                            winit::event::VirtualKeyCode::O => { scene.push(Objects::Sphere(Sphere::new(p1, 1.0, 8, 16)));},
+                            winit::event::VirtualKeyCode::R => { scene[obj_num].scale(0.01); },
+                            winit::event::VirtualKeyCode::F => { scene[obj_num].scale(-0.01); },
                             _ => {}
                         }
                     }
