@@ -18,16 +18,20 @@ pub struct Cube{
     pub angle_x: f32,
     pub angle_y: f32,
     pub scale: f32,
+    pub color: [u8; 3],
+    pub selected: bool,
 }
 
 impl Cube{
-    pub fn new(e1: Point3D, e2: Point3D) -> Self{
+    pub fn new(e1: Point3D, e2: Point3D, color: [u8; 3]) -> Self{
         Cube{
             e1,
             e2,
             angle_x: -0.6,
             angle_y: 0.4,
             scale: 1.0,
+            color,
+            selected: false,
         }
     }
 }
@@ -39,16 +43,20 @@ pub struct Plane{
     pub angle_x: f32,
     pub angle_y: f32,
     pub scale: f32,
+    pub color: [u8; 3],
+    pub selected: bool,
 }
 
 impl Plane{
-    pub fn new(e1: Point3D, e2: Point3D) -> Self{
+    pub fn new(e1: Point3D, e2: Point3D, color: [u8; 3]) -> Self{
         Plane{
             e1,
             e2,
             angle_x: -0.6,
             angle_y: 0.4,
             scale: 1.0,
+            color,
+            selected: false,
         }
     }
 }
@@ -61,10 +69,12 @@ pub struct Triangle{
     pub angle_x: f32,
     pub angle_y: f32,
     pub scale: f32,
+    pub color: [u8; 3],
+    pub selected: bool,
 }
 
 impl Triangle{
-    pub fn new(e1: Point3D, e2: Point3D, e3: Point3D) -> Self{
+    pub fn new(e1: Point3D, e2: Point3D, e3: Point3D, color: [u8; 3]) -> Self{
         Triangle{
             e1,
             e2,
@@ -72,6 +82,8 @@ impl Triangle{
             angle_x: -0.6,
             angle_y: 0.4,
             scale: 1.0,
+            color,
+            selected: false,
         }
     }
 }
@@ -85,10 +97,13 @@ pub struct Sphere{
     pub angle_x: f32,
     pub angle_y: f32,
     pub scale: f32,
+    pub color: [u8; 3],
+    pub selected: bool,
+
 }
 
 impl Sphere{
-    pub fn new(center: Point3D, radius: f32, lat_steps: i32, lon_steps: i32) -> Self{
+    pub fn new(center: Point3D, radius: f32, lat_steps: i32, lon_steps: i32, color: [u8; 3]) -> Self{
         Sphere{
             center,
             radius,
@@ -97,6 +112,8 @@ impl Sphere{
             angle_x: -0.6,
             angle_y: 0.4,
             scale: 1.0,
+            color,
+            selected: false,
         }
     }
 }
@@ -109,10 +126,13 @@ pub struct Pyramid{
     pub angle_x: f32,
     pub angle_y: f32,
     pub scale: f32,
+    pub color: [u8; 3],
+    pub selected: bool,
 }
 
 impl Pyramid{
-    pub fn new(e1: Point3D, e2: Point3D, e3: Point3D) -> Self{
+    pub fn new(e1: Point3D, e2: Point3D, e3: Point3D, color: [u8; 3]) -> Self{
+
         Pyramid{
             e1,
             e2,
@@ -120,21 +140,14 @@ impl Pyramid{
             angle_x: -0.6,
             angle_y: 0.4,
             scale: 1.0,
+            color,
+            selected: false,
         }
     }
 }
 
-impl Objects {
-    pub fn rotate(&mut self, angle_x: f32, angle_y: f32) {
-        match self {
-            Objects::Cube(cube) => cube.rotate(angle_x, angle_y),
-            Objects::Plane(plane) => plane.rotate(angle_x, angle_y),
-            Objects::Triangle(triangle) => triangle.rotate(angle_x, angle_y),
-            Objects::Pyramid(pyramid) => pyramid.rotate(angle_x, angle_y),
-            Objects::Sphere(sphere) => sphere.rotate(angle_x, angle_y),
-        }
-    }
-    pub fn move_trans(&mut self, x: f32, y: f32, z: f32) {
+impl Transformable for Objects {
+    fn move_trans(&mut self, x: f32, y: f32, z: f32) {
         match self {
             Objects::Cube(cube) => cube.move_trans(x, y, z),
             Objects::Plane(plane) => plane.move_trans(x, y, z),
@@ -143,13 +156,40 @@ impl Objects {
             Objects::Sphere(sphere) => sphere.move_trans(x, y, z),
         }
     }
-    pub fn scale(&mut self, scale: f32) {
+    fn rotate(&mut self, ax: f32, ay: f32) {
         match self {
-            Objects::Cube(cube) => cube.scale(scale),
-            Objects::Plane(plane) => plane.scale(scale),
-            Objects::Triangle(triangle) => triangle.scale(scale),
-            Objects::Pyramid(pyramid) => pyramid.scale(scale),
-            Objects::Sphere(sphere) => sphere.scale(scale),
+            Objects::Cube(cube) => cube.rotate(ax, ay),
+            Objects::Plane(plane) => plane.rotate(ax, ay),
+            Objects::Triangle(triangle) => triangle.rotate(ax, ay),
+            Objects::Pyramid(pyramid) => pyramid.rotate(ax, ay),
+            Objects::Sphere(sphere) => sphere.rotate(ax, ay),
+        }
+    }
+    fn scale(&mut self, s: f32) {
+        match self {
+            Objects::Cube(cube) => cube.scale(s),
+            Objects::Plane(plane) => plane.scale(s),
+            Objects::Triangle(triangle) => triangle.scale(s),
+            Objects::Pyramid(pyramid) => pyramid.scale(s),
+            Objects::Sphere(sphere) => sphere.scale(s),
+        }
+    }
+    fn select(&mut self) {
+        match self {
+            Objects::Cube(cube) => cube.select(),
+            Objects::Plane(plane) => plane.select(),
+            Objects::Triangle(triangle) => triangle.select(),
+            Objects::Pyramid(pyramid) => pyramid.select(),
+            Objects::Sphere(sphere) => sphere.select(),
+        }
+    }
+    fn deselect(&mut self) {
+        match self {
+            Objects::Cube(cube) => cube.deselect(),
+            Objects::Plane(plane) => plane.deselect(),
+            Objects::Triangle(triangle) => triangle.deselect(),
+            Objects::Pyramid(pyramid) => pyramid.deselect(),
+            Objects::Sphere(sphere) => sphere.deselect(),
         }
     }
 }
@@ -158,6 +198,8 @@ pub trait Transformable {
     fn move_trans(&mut self, x: f32, y: f32, z: f32);
     fn rotate(&mut self, angle_x: f32, angle_y: f32);
     fn scale(&mut self, scale_delta: f32);
+    fn select(&mut self);
+    fn deselect(&mut self);
 }
 
 impl Transformable for Cube {
@@ -174,6 +216,12 @@ impl Transformable for Cube {
     }
     fn scale(&mut self, scale: f32) {
         self.scale += scale;
+    }
+    fn select(&mut self) {
+        self.selected = true;
+    }
+    fn deselect(&mut self) {
+        self.selected = false;
     }
 }
 
@@ -192,6 +240,12 @@ impl Transformable for Plane {
     fn scale(&mut self, scale: f32) {
         self.scale += scale;
     }
+    fn select(&mut self) {
+        self.selected = true;
+    }
+    fn deselect(&mut self) {
+        self.selected = false;
+    }
 }
 
 impl Transformable for Triangle {
@@ -208,6 +262,12 @@ impl Transformable for Triangle {
     }
     fn scale(&mut self, scale: f32) {
         self.scale += scale;
+    }
+    fn select(&mut self) {
+        self.selected = true;
+    }
+    fn deselect(&mut self) {
+        self.selected = false;
     }
 }
 
@@ -227,6 +287,12 @@ impl Transformable for Sphere {
     fn scale(&mut self, scale: f32) {
         self.scale += scale;
     }
+    fn select(&mut self) {
+        self.selected = true;
+    }
+    fn deselect(&mut self) {
+        self.selected = false;
+    }
 }
 
 impl Transformable for Pyramid {
@@ -244,10 +310,16 @@ impl Transformable for Pyramid {
     fn scale(&mut self, scale: f32) {
         self.scale += scale;
     }
+    fn select(&mut self) {
+        self.selected = true;
+    }
+    fn deselect(&mut self) {
+        self.selected = false;
+    }
 }
 
 
-pub fn draw_cube(object: Cube, light: Point3D, framebuffer: &mut [u8], zbuffer: &mut [f32]){
+pub fn draw_cube(object: &Cube, light: Point3D, framebuffer: &mut [u8], zbuffer: &mut [f32]){
     let e1 = object.e1;
     let e2 = object.e2;
     let angle_x = object.angle_x;
@@ -255,8 +327,6 @@ pub fn draw_cube(object: Cube, light: Point3D, framebuffer: &mut [u8], zbuffer: 
     
     let side_length = (e1.x-e2.x).abs();
     let center = Point3D::new(e1.x + side_length/2.0, e1.y + side_length/2.0, e1.z + side_length/2.0);
-
-    println!("{}", object.scale);
 
     let p1 = rotate_and_translate(Point3D::new(e1.x, e1.y, e1.z), angle_x, angle_y, object.scale, center);
     let p2 = rotate_and_translate(Point3D::new(e2.x, e1.y, e1.z), angle_x, angle_y, object.scale, center);
@@ -268,26 +338,26 @@ pub fn draw_cube(object: Cube, light: Point3D, framebuffer: &mut [u8], zbuffer: 
     let p8 = rotate_and_translate(Point3D::new(e1.x, e2.y, e1.z + side_length), angle_x, angle_y, object.scale, center);
 
     //Front
-    triangle_3d_fill(Triangle3D::new(p3, p2, p1), light, framebuffer, zbuffer);
-    triangle_3d_fill(Triangle3D::new(p4, p3, p1), light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p1, p2, p3, object.color), object.selected, light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p1, p3, p4, object.color), object.selected, light, framebuffer, zbuffer);
     //Top
-    triangle_3d_fill(Triangle3D::new(p1, p2, p6), light, framebuffer, zbuffer);
-    triangle_3d_fill(Triangle3D::new(p6, p5, p1), light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p6, p2, p1, object.color), object.selected, light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p1, p5, p6, object.color), object.selected, light, framebuffer, zbuffer);
     //Left
-    triangle_3d_fill(Triangle3D::new(p5, p4, p1), light, framebuffer, zbuffer);
-    triangle_3d_fill(Triangle3D::new(p5,p8, p4), light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p1, p4, p5, object.color), object.selected, light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p4,p8, p5, object.color), object.selected, light, framebuffer, zbuffer);
     //Right
-    triangle_3d_fill(Triangle3D::new(p2, p3, p7), light, framebuffer, zbuffer);
-    triangle_3d_fill(Triangle3D::new(p7,p6, p2), light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p7, p3, p2, object.color), object.selected, light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p2,p6, p7, object.color), object.selected, light, framebuffer, zbuffer);
     //Bottom
-    triangle_3d_fill(Triangle3D::new(p3, p4, p8), light, framebuffer, zbuffer);
-    triangle_3d_fill(Triangle3D::new(p8,p7, p3), light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p8, p4, p3, object.color), object.selected, light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p3,p7, p8, object.color), object.selected, light, framebuffer, zbuffer);
     //Back
-    triangle_3d_fill(Triangle3D::new(p5, p6, p7), light, framebuffer, zbuffer);
-    triangle_3d_fill(Triangle3D::new(p5,p7, p8), light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p7, p6, p5, object.color), object.selected, light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p8,p7, p5, object.color), object.selected, light, framebuffer, zbuffer);
 }
 
-pub fn draw_plane(object: Plane, light: Point3D, framebuffer: &mut [u8], zbuffer: &mut [f32]){
+pub fn draw_plane(object: &Plane, light: Point3D, framebuffer: &mut [u8], zbuffer: &mut [f32]){
     let e1 = object.e1;
     let e2 = object.e2;
     let angle_x = object.angle_x;
@@ -301,12 +371,11 @@ pub fn draw_plane(object: Plane, light: Point3D, framebuffer: &mut [u8], zbuffer
     let p3 = rotate_and_translate(Point3D::new(e2.x, e2.y, e1.z), angle_x, angle_y, object.scale, center);
     let p4 = rotate_and_translate(Point3D::new(e1.x, e2.y, e1.z), angle_x, angle_y, object.scale, center);
 
-    //Front
-    triangle_3d_fill(Triangle3D::new(p3, p2, p1), light, framebuffer, zbuffer);
-    triangle_3d_fill(Triangle3D::new(p4, p3, p1), light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p1, p2, p3, object.color), object.selected, light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p1, p3, p4, object.color), object.selected, light, framebuffer, zbuffer);
 }
 
-pub fn draw_triangle(object: Triangle, light: Point3D, framebuffer: &mut [u8], zbuffer: &mut [f32]){
+pub fn draw_triangle(object: &Triangle, light: Point3D, framebuffer: &mut [u8], zbuffer: &mut [f32]){
     let e1 = object.e1;
     let e2 = object.e2;
     let e3 = object.e3;
@@ -323,10 +392,10 @@ pub fn draw_triangle(object: Triangle, light: Point3D, framebuffer: &mut [u8], z
     let p2 = rotate_and_translate(Point3D::new(e2.x, e2.y, e2.z), angle_x, angle_y, object.scale, center);
     let p3 = rotate_and_translate(Point3D::new(e3.x, e3.y, e3.z), angle_x, angle_y, object.scale, center);
 
-    triangle_3d_fill(Triangle3D::new(p1, p2, p3), light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p3, p2, p1, object.color), object.selected, light, framebuffer, zbuffer);
 }
 
-pub fn draw_pyramid(object: Pyramid, light: Point3D, framebuffer: &mut [u8], zbuffer: &mut [f32]){
+pub fn draw_pyramid(object: &Pyramid, light: Point3D, framebuffer: &mut [u8], zbuffer: &mut [f32]){
     let e1 = object.e1;
     let e2 = object.e2;
     let e3 = object.e3;
@@ -342,16 +411,18 @@ pub fn draw_pyramid(object: Pyramid, light: Point3D, framebuffer: &mut [u8], zbu
     let p4 = rotate_and_translate(Point3D::new(e2.x, e2.y, e1.z), angle_x, angle_y, object.scale, center);
     let p5 = rotate_and_translate(Point3D::new(e3.x, e3.y, e3.z), angle_x, angle_y, object.scale, center);
 
-    triangle_3d_fill(Triangle3D::new(p1, p2, p3), light, framebuffer, zbuffer);
-    triangle_3d_fill(Triangle3D::new(p3, p2, p4), light, framebuffer, zbuffer);
+    //Bottom
+    triangle_3d_fill(Triangle3D::new(p3, p2, p1, object.color), object.selected, light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p4, p2, p3, object.color), object.selected, light, framebuffer, zbuffer);
 
-    triangle_3d_fill(Triangle3D::new(p5, p2, p1), light, framebuffer, zbuffer);
-    triangle_3d_fill(Triangle3D::new(p4, p2, p5), light, framebuffer, zbuffer);
-    triangle_3d_fill(Triangle3D::new(p5, p3, p4), light, framebuffer, zbuffer);
-    triangle_3d_fill(Triangle3D::new(p5, p1, p3), light, framebuffer, zbuffer);
+    //Sides
+    triangle_3d_fill(Triangle3D::new(p1, p2, p5, object.color), object.selected, light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p5, p2, p4, object.color), object.selected, light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p4, p3, p5, object.color), object.selected, light, framebuffer, zbuffer);
+    triangle_3d_fill(Triangle3D::new(p3, p1, p5, object.color), object.selected, light, framebuffer, zbuffer);
 }
 
-pub fn draw_sphere(object: Sphere,light: Point3D,framebuffer: &mut [u8],zbuffer: &mut [f32]) {
+pub fn draw_sphere(object: &Sphere,light: Point3D,framebuffer: &mut [u8],zbuffer: &mut [f32]) {
     let angle_x = object.angle_x;
     let angle_y = object.angle_y;
     let center = object.center;
@@ -391,8 +462,8 @@ pub fn draw_sphere(object: Sphere,light: Point3D,framebuffer: &mut [u8],zbuffer:
             let p3 = rotate_and_translate(p3, angle_x, angle_y, object.scale, center);
             let p4 = rotate_and_translate(p4, angle_x, angle_y, object.scale, center);
 
-            triangle_3d_fill(Triangle3D::new(p1, p2, p3), light, framebuffer, zbuffer);
-            triangle_3d_fill(Triangle3D::new(p1, p3, p4), light, framebuffer, zbuffer);
+            triangle_3d_fill(Triangle3D::new(p1, p2, p3, object.color), object.selected, light, framebuffer, zbuffer);
+            triangle_3d_fill(Triangle3D::new(p1, p3, p4, object.color), object.selected, light, framebuffer, zbuffer);
         }
     }
 }

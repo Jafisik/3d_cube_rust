@@ -47,7 +47,6 @@ pub fn rotate_x(p: Point3D, angle: f32, center: Point3D) -> Point3D {
 }
 
 pub fn scale_object(p: Point3D, scale: f32, center: Point3D) -> Point3D {
-    //println!("{}", center.x + (p.x - center.x) * scale);
     Point3D {
         x: center.x + (p.x - center.x) * scale,
         y: center.y + (p.y - center.y) * scale,

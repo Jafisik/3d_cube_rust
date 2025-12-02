@@ -36,11 +36,12 @@ pub struct Triangle3D {
     pub p1: Point3D,
     pub p2: Point3D,
     pub p3: Point3D,
+    pub color: [u8; 3],
 }
 
 impl Triangle3D {
-    pub fn new(p1: Point3D, p2: Point3D, p3: Point3D) -> Self{
-        Self {p1, p2, p3}
+    pub fn new(p1: Point3D, p2: Point3D, p3: Point3D, color: [u8; 3]) -> Self{
+        Self {p1, p2, p3, color}
     }
 }
 

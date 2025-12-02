@@ -4,9 +4,9 @@ use crate::operations::*;
 use crate::HEIGHT;
 use crate::WIDTH;
 
-pub fn triangle_3d_fill(triangle: Triangle3D, light_dir: Point3D, framebuffer: &mut [u8], zbuffer: &mut [f32]) {
+pub fn triangle_3d_fill(triangle: Triangle3D, selected: bool, light_dir: Point3D, framebuffer: &mut [u8], zbuffer: &mut [f32]) {
     let intensity = compute_light(&triangle, light_dir);
-    let color_gray = shaded_gray(intensity);
+    let color_gray = shaded_color(intensity, triangle.color, selected);
 
     let p1 = triangle.p1;
     let p2 = triangle.p2;
@@ -82,7 +82,7 @@ pub fn draw_scanline_z(x1: f64, x2: f64, y: u32, z1: f32, z2: f32, buffer: &mut 
     let dx = x_end - x_start;
     if dx == 0.0 { return; }
 
-    for i in 0..(dx as u32) {
+    for i in 0..=(dx as u32) {
         let x = (x_start + i as f64).clamp(0.0, (WIDTH - 1) as f64) as u32;
         let z = z_start + (i as f32 / dx as f32) * (z_end - z_start);
         set_pixel(buffer, zbuffer, x, y, z, color);
@@ -100,7 +100,7 @@ pub fn set_pixel(buffer: &mut [u8], zbuffer: &mut [f32], x: u32, y: u32, z: f32,
         buffer[pixel_i..pixel_i + 4].copy_from_slice(&color);
     }
 }
-
+/*
 pub fn line(x_s: u32, y_s: u32, x_e: u32, y_e: u32, z_s: f32, z_e: f32, buffer: &mut [u8], zbuffer: &mut [f32], color: [u8; 4]) {
     let mut x = x_s as f64;
     let mut y = y_s as f64;
@@ -120,7 +120,7 @@ pub fn line(x_s: u32, y_s: u32, x_e: u32, y_e: u32, z_s: f32, z_e: f32, buffer: 
     }
 }
 
-/* 
+
 pub fn triangle_outline(t: Triangle, buffer: &mut [u8], color: [u8; 4]){
     line(t.p1.x, t.p1.y, t.p2.x, t.p2.y, buffer, color);
     line(t.p2.x, t.p2.y, t.p3.x, t.p3.y, buffer, color);
